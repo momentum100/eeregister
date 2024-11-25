@@ -31,11 +31,28 @@
                             <div class="card bg-light">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary">Generated SQL</h5>
-                                    <pre class="card-text"><code class="language-sql">{{ $generatedSql }}</code></pre>
+                                    <pre class="card-text"><code class="language-sql">{{ $generatedSql ?? 'No SQL generated' }}</code></pre>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    @if(isset($tokens))
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Token Usage</h5>
+                                    <div class="token-info">
+                                        <p class="mb-1"><strong>Input Tokens:</strong> <span>{{ number_format($tokens['input'] ?? 0) }}</span></p>
+                                        <p class="mb-1"><strong>Output Tokens:</strong> <span>{{ number_format($tokens['output'] ?? 0) }}</span></p>
+                                        <p class="mb-0"><strong>Estimated Cost:</strong> <span>${{ number_format($tokens['cost'] ?? 0, 6) }}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     @if(count($results))
                         <div class="table-responsive" style="width: 100%;">
@@ -81,8 +98,33 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure content stays visible
+    const tokenInfo = document.querySelector('.token-info');
+    if (tokenInfo) {
+        // Add a class to make it visible
+        tokenInfo.style.opacity = '1';
+        tokenInfo.style.visibility = 'visible';
+    }
+
+    // Format SQL code
+    const sqlCode = document.querySelector('code.language-sql');
+    if (sqlCode && typeof hljs !== 'undefined') {
+        hljs.highlightElement(sqlCode);
+    }
+});
+</script>
+@endpush
+
 @push('styles')
 <style>
+    .token-info {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease;
+    }
     .table th {
         background-color: #f8f9fa;
         font-weight: 600;
@@ -95,6 +137,8 @@
         padding: 1rem;
         border-radius: 0.25rem;
         margin-bottom: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
     .card-header {
         border-bottom: 0;
