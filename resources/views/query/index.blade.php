@@ -54,7 +54,7 @@
                                         </template>
                                     </button>
                                 </h2>
-                                <div id="queryInfo" class="accordion-collapse collapse" data-bs-parent="#queryDetails">
+                                <div id="queryInfo" class="accordion-collapse collapse visible" data-bs-parent="#queryDetails">
                                     <div class="accordion-body pt-0">
                                         <div class="row g-3">
                                             <div class="col-md-6">
