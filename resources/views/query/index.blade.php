@@ -45,7 +45,7 @@
                         <div class="accordion" id="queryDetails">
                             <div class="accordion-item border-0">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#queryInfo">
+                                    <button class="accordion-button collapsed py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#queryInfo">
                                         Query Details
                                         <template x-if="results?.tokens">
                                             <span class="badge bg-info ms-2">
@@ -54,7 +54,7 @@
                                         </template>
                                     </button>
                                 </h2>
-                                <div id="queryInfo" class="accordion-collapse collapse show" data-bs-parent="#queryDetails">
+                                <div id="queryInfo" class="accordion-collapse collapse visible" data-bs-parent="#queryDetails">
                                     <div class="accordion-body pt-0">
                                         <div class="row g-3">
                                             <div class="col-md-6">
@@ -227,24 +227,6 @@ function queryForm() {
 @push('styles')
 <style>
     [x-cloak] { display: none !important; }
-    #queryInfo {
-        visibility: visible !important;
-        display: block !important;
-        opacity: 1 !important;
-    }
-    #queryInfo.show {
-        visibility: visible !important;
-        display: block !important;
-        opacity: 1 !important;
-    }
-    .accordion-collapse:not(.collapsing) {
-        visibility: visible !important;
-        display: block !important;
-        opacity: 1 !important;
-    }
-    .accordion-button:not(.collapsed)::after {
-        transform: rotate(-180deg);
-    }
     .table th {
         background-color: #f8f9fa;
         font-weight: 600;
