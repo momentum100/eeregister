@@ -31,28 +31,37 @@
                             <div class="card bg-light">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary">Generated SQL</h5>
-                                    <pre class="card-text"><code class="language-sql">{{ $generatedSql ?? 'No SQL generated' }}</code></pre>
+                                    <pre class="card-text sql-query">{{ $generatedSql ?? 'No SQL generated' }}</pre>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    @if(isset($tokens))
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title text-primary">Token Usage</h5>
-                                    <div class="token-info">
-                                        <p class="mb-1"><strong>Input Tokens:</strong> <span>{{ number_format($tokens['input'] ?? 0) }}</span></p>
-                                        <p class="mb-1"><strong>Output Tokens:</strong> <span>{{ number_format($tokens['output'] ?? 0) }}</span></p>
-                                        <p class="mb-0"><strong>Estimated Cost:</strong> <span>${{ number_format($tokens['cost'] ?? 0, 6) }}</span></p>
+                                    <h5 class="card-title text-primary">Query Details</h5>
+                                    <div class="query-details">
+                                        <table class="table table-sm mb-0">
+                                            <tr>
+                                                <td><strong>Input Tokens:</strong></td>
+                                                <td id="input-tokens">{{ isset($tokens['input']) ? number_format($tokens['input']) : '0' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Output Tokens:</strong></td>
+                                                <td id="output-tokens">{{ isset($tokens['output']) ? number_format($tokens['output']) : '0' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Cost:</strong></td>
+                                                <td id="token-cost">${{ isset($tokens['cost']) ? number_format($tokens['cost'], 6) : '0.000000' }}</td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    @endif
 
                     @if(count($results))
                         <div class="table-responsive" style="width: 100%;">
@@ -101,16 +110,8 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Ensure content stays visible
-    const tokenInfo = document.querySelector('.token-info');
-    if (tokenInfo) {
-        // Add a class to make it visible
-        tokenInfo.style.opacity = '1';
-        tokenInfo.style.visibility = 'visible';
-    }
-
     // Format SQL code
-    const sqlCode = document.querySelector('code.language-sql');
+    const sqlCode = document.querySelector('code.sql-query');
     if (sqlCode && typeof hljs !== 'undefined') {
         hljs.highlightElement(sqlCode);
     }
@@ -120,10 +121,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
-    .token-info {
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.3s ease;
+    .query-details {
+        display: block !important;
+    }
+    .query-details table {
+        margin: 0;
+    }
+    .query-details td {
+        padding: 0.25rem 0.5rem;
+        border: none;
+    }
+    .sql-query {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: monospace;
+    }
+    pre {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0;
+    }
+    .card-header {
+        border-bottom: 0;
     }
     .table th {
         background-color: #f8f9fa;
@@ -131,17 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     .table td {
         vertical-align: middle;
-    }
-    pre {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        margin-bottom: 0;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-    .card-header {
-        border-bottom: 0;
     }
     .table-responsive {
         margin: 0 -1px;
