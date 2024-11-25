@@ -18,46 +18,63 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title text-primary">Your Question</h5>
-                                    <p class="card-text">{{ $userQuery }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title text-primary">Generated SQL</h5>
-                                    <pre class="card-text sql-query">{{ $generatedSql ?? 'No SQL generated' }}</pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title text-primary">Query Details</h5>
-                                    <div class="query-details">
-                                        <table class="table table-sm mb-0">
-                                            <tr>
-                                                <td><strong>Input Tokens:</strong></td>
-                                                <td id="input-tokens">{{ isset($tokens['input']) ? number_format($tokens['input']) : '0' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Output Tokens:</strong></td>
-                                                <td id="output-tokens">{{ isset($tokens['output']) ? number_format($tokens['output']) : '0' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Cost:</strong></td>
-                                                <td id="token-cost">${{ isset($tokens['cost']) ? number_format($tokens['cost'], 6) : '0.000000' }}</td>
-                                            </tr>
-                                        </table>
+                    <div class="accordion" id="queryDetails">
+                        <div id="queryInfo" class="accordion-collapse collapse show" data-bs-parent="#queryDetails" style="visibility: visible !important; display: block !important;">
+                            <div class="accordion-body pt-0">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body py-2">
+                                                <h6 class="card-title mb-1">Natural Language Query</h6>
+                                                <p class="card-text small mb-0" x-text="results?.query || ''">{{ $userQuery }}</p>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body py-2">
+                                                <h6 class="card-title mb-1">Generated SQL</h6>
+                                                <pre class="card-text small mb-0"><code class="language-sql" x-text="results?.sql || ''">{{ $generatedSql }}</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <template x-if="results?.tokens">
+                                        <div class="col-12">
+                                            <div class="card bg-light">
+                                                <div class="card-body py-2">
+                                                    <h6 class="card-title mb-1">Token Usage & Cost</h6>
+                                                    <div class="row g-2">
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex justify-content-between align-items-center small">
+                                                                <span>Input Tokens:</span>
+                                                                <span class="badge bg-secondary" x-text="results.tokens.input"></span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between align-items-center small text-muted">
+                                                                <span>Cost:</span>
+                                                                <span x-text="'$' + ((results.tokens.input / 1000000) * 0.15).toFixed(6)"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex justify-content-between align-items-center small">
+                                                                <span>Output Tokens:</span>
+                                                                <span class="badge bg-secondary" x-text="results.tokens.output"></span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between align-items-center small text-muted">
+                                                                <span>Cost:</span>
+                                                                <span x-text="'$' + ((results.tokens.output / 1000000) * 0.60).toFixed(6)"></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex justify-content-between align-items-center small">
+                                                                <span>Total Cost:</span>
+                                                                <span class="badge bg-info" x-text="'$' + results.tokens.cost.toFixed(6)"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -121,47 +138,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
-    .query-details {
-        display: block !important;
-    }
-    .query-details table {
-        margin: 0;
-    }
-    .query-details td {
-        padding: 0.25rem 0.5rem;
-        border: none;
-    }
-    .sql-query {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        margin-bottom: 0;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        font-family: monospace;
-    }
-    pre {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        margin-bottom: 0;
-    }
-    .card-header {
-        border-bottom: 0;
-    }
-    .table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-    }
-    .table td {
-        vertical-align: middle;
-    }
-    .table-responsive {
-        margin: 0 -1px;
-    }
-    .badge {
-        font-size: 0.875rem;
-    }
+#queryInfo {
+    visibility: visible !important;
+    display: block !important;
+    opacity: 1 !important;
+}
+.accordion-collapse.collapse.show {
+    visibility: visible !important;
+    display: block !important;
+    opacity: 1 !important;
+}
+pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.query-details {
+    display: block !important;
+}
+.query-details table {
+    margin: 0;
+}
+.query-details td {
+    padding: 0.25rem 0.5rem;
+    border: none;
+}
+.sql-query {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+}
+.card-header {
+    border-bottom: 0;
+}
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+.table td {
+    vertical-align: middle;
+}
+.table-responsive {
+    margin: 0 -1px;
+}
+.badge {
+    font-size: 0.875rem;
+}
 </style>
 @endpush
 @endsection
