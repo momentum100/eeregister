@@ -18,63 +18,57 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="accordion" id="queryDetails">
-                        <div id="queryInfo" class="accordion-collapse collapse show" data-bs-parent="#queryDetails" style="visibility: visible !important; display: block !important;">
-                            <div class="accordion-body pt-0">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="card bg-light">
-                                            <div class="card-body py-2">
-                                                <h6 class="card-title mb-1">Natural Language Query</h6>
-                                                <p class="card-text small mb-0" x-text="results?.query || ''">{{ $userQuery }}</p>
-                                            </div>
-                                        </div>
+                    <div class="query-results-container">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title mb-1">Natural Language Query</h6>
+                                        <p class="card-text small mb-0" x-text="results?.query || ''">{{ $userQuery }}</p>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="card bg-light">
-                                            <div class="card-body py-2">
-                                                <h6 class="card-title mb-1">Generated SQL</h6>
-                                                <pre class="card-text small mb-0"><code class="language-sql" x-text="results?.sql || ''">{{ $generatedSql }}</code></pre>
-                                            </div>
-                                        </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title mb-1">Generated SQL</h6>
+                                        <pre class="card-text small mb-0"><code class="language-sql" x-text="results?.sql || ''">{{ $generatedSql }}</code></pre>
                                     </div>
-                                    <template x-if="results?.tokens">
-                                        <div class="col-12">
-                                            <div class="card bg-light">
-                                                <div class="card-body py-2">
-                                                    <h6 class="card-title mb-1">Token Usage & Cost</h6>
-                                                    <div class="row g-2">
-                                                        <div class="col-md-4">
-                                                            <div class="d-flex justify-content-between align-items-center small">
-                                                                <span>Input Tokens:</span>
-                                                                <span class="badge bg-secondary" x-text="results.tokens.input"></span>
-                                                            </div>
-                                                            <div class="d-flex justify-content-between align-items-center small text-muted">
-                                                                <span>Cost:</span>
-                                                                <span x-text="'$' + ((results.tokens.input / 1000000) * 0.15).toFixed(6)"></span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="d-flex justify-content-between align-items-center small">
-                                                                <span>Output Tokens:</span>
-                                                                <span class="badge bg-secondary" x-text="results.tokens.output"></span>
-                                                            </div>
-                                                            <div class="d-flex justify-content-between align-items-center small text-muted">
-                                                                <span>Cost:</span>
-                                                                <span x-text="'$' + ((results.tokens.output / 1000000) * 0.60).toFixed(6)"></span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="d-flex justify-content-between align-items-center small">
-                                                                <span>Total Cost:</span>
-                                                                <span class="badge bg-info" x-text="'$' + results.tokens.cost.toFixed(6)"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12" x-show="results?.tokens" x-cloak>
+                                <div class="card bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title mb-1">Token Usage & Cost</h6>
+                                        <div class="row g-2">
+                                            <div class="col-md-4">
+                                                <div class="d-flex justify-content-between align-items-center small">
+                                                    <span>Input Tokens:</span>
+                                                    <span class="badge bg-secondary" x-text="results?.tokens?.input || 0"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                                    <span>Cost:</span>
+                                                    <span x-text="'$' + ((results?.tokens?.input || 0) / 1000000 * 0.15).toFixed(6)"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex justify-content-between align-items-center small">
+                                                    <span>Output Tokens:</span>
+                                                    <span class="badge bg-secondary" x-text="results?.tokens?.output || 0"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center small text-muted">
+                                                    <span>Cost:</span>
+                                                    <span x-text="'$' + ((results?.tokens?.output || 0) / 1000000 * 0.60).toFixed(6)"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex justify-content-between align-items-center small">
+                                                    <span>Total Cost:</span>
+                                                    <span class="badge bg-info" x-text="'$' + (results?.tokens?.cost || 0).toFixed(6)"></span>
                                                 </div>
                                             </div>
                                         </div>
-                                    </template>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -138,39 +132,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
-#queryInfo {
-    visibility: visible !important;
+.query-results-container {
     display: block !important;
+    visibility: visible !important;
     opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
 }
-.accordion-collapse.collapse.show {
-    visibility: visible !important;
-    display: block !important;
-    opacity: 1 !important;
+[x-cloak] {
+    display: none !important;
 }
 pre {
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
-}
-.query-details {
-    display: block !important;
-}
-.query-details table {
-    margin: 0;
-}
-.query-details td {
-    padding: 0.25rem 0.5rem;
-    border: none;
-}
-.sql-query {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0.25rem;
-    margin-bottom: 0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: monospace;
 }
 .card-header {
     border-bottom: 0;
