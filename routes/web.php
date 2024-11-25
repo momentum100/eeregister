@@ -19,7 +19,7 @@ Route::post('/query', [App\Http\Controllers\QueryController::class, 'execute'])-
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
 
 Route::get('/dashboard', function () {
