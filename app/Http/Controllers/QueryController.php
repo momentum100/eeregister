@@ -36,72 +36,78 @@ class QueryController extends Controller
 
             // Construct the prompt
             $schema = "
-            CREATE TABLE companies (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                registration_code VARCHAR(8) NOT NULL UNIQUE,
-                name VARCHAR(255) NOT NULL,
-                status VARCHAR(50),
-                registration_date DATE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            );
 
-            -- Contacts table
-            CREATE TABLE contacts (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                company_id INT NOT NULL,
-                address TEXT,
-                phone VARCHAR(50),
-                email VARCHAR(255),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (company_id) REFERENCES companies(id),
-                UNIQUE KEY unique_company (company_id)
-            );
 
-            -- Representatives table
-            CREATE TABLE representatives (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                company_id INT NOT NULL,
-                name VARCHAR(255) NOT NULL,
-                id_code VARCHAR(11),
-                role VARCHAR(100),
-                start_date DATE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (company_id) REFERENCES companies(id),
-                UNIQUE KEY unique_person_company (company_id, id_code)
-            );
+        CREATE TABLE companies (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            registration_code VARCHAR(8) NOT NULL UNIQUE,
+            name VARCHAR(255) NOT NULL,
+            legal_form VARCHAR(200),
+            status VARCHAR(50),
+            registration_date DATE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        );
 
-            -- Tax info table
-            CREATE TABLE tax_info (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                company_id INT NOT NULL,
-                vat_registered BOOLEAN DEFAULT FALSE,
-                vat_registration_date DATE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (company_id) REFERENCES companies(id),
-                UNIQUE KEY unique_company (company_id)
-            );
+        -- Contacts table
+        CREATE TABLE contacts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            company_id INT NOT NULL,
+            address TEXT,
+            email VARCHAR(255),
+            phone VARCHAR(100),
+            website VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (company_id) REFERENCES companies(id),
+            UNIQUE KEY unique_company (company_id)
+        );
 
-            -- Industries table
-            CREATE TABLE industries (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                company_id INT NOT NULL,
-                industry_text VARCHAR(255) NOT NULL,
-                industry_code VARCHAR(5) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (company_id) REFERENCES companies(id),
-                UNIQUE KEY unique_company_industry (company_id, industry_code)
-            );
+        -- Representatives table
+        CREATE TABLE representatives (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            company_id INT NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            id_code VARCHAR(11),
+            role VARCHAR(100),
+            start_date DATE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (company_id) REFERENCES companies(id),
+            UNIQUE KEY unique_person_company (company_id, id_code)
+        );
 
-            -- Add indexes for better query performance
-            CREATE INDEX idx_company_registration_code ON companies(registration_code);
-            CREATE INDEX idx_company_registration_date ON companies(registration_date);
-            CREATE INDEX idx_representatives_id_code ON representatives(id_code);
-            CREATE INDEX idx_industries_code ON industries(industry_code);
+        -- Tax info table
+        CREATE TABLE tax_info (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            company_id INT NOT NULL,
+            vat_registered BOOLEAN DEFAULT FALSE,
+            vat_registration_date DATE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (company_id) REFERENCES companies(id),
+            UNIQUE KEY unique_company (company_id)
+        );
+
+        -- Industries table
+        CREATE TABLE industries (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            company_id INT NOT NULL,
+            industry_text VARCHAR(255) NOT NULL,
+            industry_code VARCHAR(5) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (company_id) REFERENCES companies(id),
+            UNIQUE KEY unique_company_industry (company_id, industry_code)
+        );
+
+        -- Add indexes for better query performance
+        CREATE INDEX idx_company_registration_code ON companies(registration_code);
+        CREATE INDEX idx_company_registration_date ON companies(registration_date);
+        CREATE INDEX idx_representatives_id_code ON representatives(id_code);
+        CREATE INDEX idx_industries_code ON industries(industry_code);
+
+
 
             ";
 
@@ -116,7 +122,10 @@ class QueryController extends Controller
                         You must ONLY return the exact SQL query without any additional text or markup.
                          If the query mentions specific columns, you must ONLY select those columns. 
                         Do not select updated_at or created_at columns. in select specify colomns needed only, avoid using greedy select * query. 
-                        . Always maintain any specified ordering and limits.'
+                        Always maintain any specified ordering and limits.
+                        If you select from companies table, you always include registration_code, name, registration_date.
+                                            
+                        '
                     ],
                     [
                         'role' => 'user',
