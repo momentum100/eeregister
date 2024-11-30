@@ -39,7 +39,14 @@
                 <div class="card shadow-sm">
                     <div class="card-header py-2 d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Results</h5>
-                        <span class="badge" :class="results?.results?.length > 0 ? 'bg-success' : 'bg-warning'" x-text="results?.results?.length > 0 ? `${results.results.length} result${results.results.length === 1 ? '' : 's'}` : 'No results'"></span>
+                        <div class="d-flex align-items-center gap-2">
+                            <template x-if="results?.results?.length > 0">
+                                <button class="btn btn-success btn-sm" @click="downloadTableAsCSV">
+                                    <i class="fas fa-download"></i> Download CSV
+                                </button>
+                            </template>
+                            <span class="badge" :class="results?.results?.length > 0 ? 'bg-success' : 'bg-warning'" x-text="results?.results?.length > 0 ? `${results.results.length} result${results.results.length === 1 ? '' : 's'}` : 'No results'"></span>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="accordion" id="queryDetails">
@@ -177,6 +184,42 @@ function queryForm() {
         error: null,
         results: null,
         hasResults: false,
+
+        downloadTableAsCSV() {
+            if (!this.results?.results?.length) return;
+            
+            let csv = [];
+            
+            // Get headers
+            const headers = Object.keys(this.results.results[0]).map(header => 
+                '"' + String(header).replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + '"'
+            );
+            csv.push(['#', ...headers].join(','));
+            
+            // Get data rows
+            this.results.results.forEach((row, index) => {
+                const rowData = [index + 1];
+                Object.values(row).forEach(value => {
+                    // Handle NULL values and escape quotes
+                    const text = value === null ? '' : String(value);
+                    rowData.push('"' + text.replace(/"/g, '""') + '"');
+                });
+                csv.push(rowData.join(','));
+            });
+            
+            // Create and trigger download
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'ee_registry_query_results.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        },
 
         async submitQuery() {
             if (this.loading || this.submitting || !this.query.trim()) return;
