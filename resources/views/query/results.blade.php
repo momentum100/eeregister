@@ -75,6 +75,12 @@
                     </div>
 
                     @if(count($results))
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>Showing {{ $results->firstItem() }} to {{ $results->lastItem() }} of {{ $results->total() }} results</div>
+                            <button class="btn btn-success btn-sm" onclick="downloadTableAsCSV()">
+                                <i class="fas fa-download"></i> Download CSV
+                            </button>
+                        </div>
                         <div class="table-responsive" style="width: 100%;">
                             <table class="table table-hover table-striped table-bordered w-100">
                                 <thead class="table-dark">
@@ -127,6 +133,46 @@ document.addEventListener('DOMContentLoaded', function() {
         hljs.highlightElement(sqlCode);
     }
 });
+
+function downloadTableAsCSV() {
+    const table = document.querySelector('table');
+    let csv = [];
+    
+    // Get headers
+    const headers = [];
+    const headerCells = table.querySelectorAll('thead th');
+    headerCells.forEach(cell => {
+        headers.push('"' + cell.textContent.trim() + '"');
+    });
+    csv.push(headers.join(','));
+    
+    // Get data rows
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const rowData = [];
+        const cells = row.querySelectorAll('td');
+        cells.forEach(cell => {
+            let text = cell.textContent.trim();
+            // Handle NULL values
+            text = text === 'NULL' ? '' : text;
+            // Escape quotes and wrap in quotes
+            rowData.push('"' + text.replace(/"/g, '""') + '"');
+        });
+        csv.push(rowData.join(','));
+    });
+    
+    // Create and trigger download
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'ee_registry_query_results.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 @endpush
 
